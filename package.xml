@@ -13,12 +13,12 @@
  <date>2013-12-09</date>
  <time>02:24:33</time>
  <version>
-  <release>1.0.0</release>
-  <api>1.0.0</api>
+  <release>0.1.0</release>
+  <api>0.1.0</api>
  </version>
  <stability>
-  <release>stable</release>
-  <api>stable</api>
+  <release>beta</release>
+  <api>beta</api>
  </stability>
  <license uri="http://www.opensource.org/licenses/mit-license.html">MIT License</license>
  <notes>
@@ -53,6 +53,7 @@ Initial release
    <package>
     <name>PHPParser</name>
     <channel>nikic.github.com/pear</channel>
+    <min>0.9.4</min>
    </package>
   </required>
  </dependencies>
