@@ -12,6 +12,7 @@ Classy can be installed via the following methods:
 
 ### PEAR ###
 Classy is hosted on the [bronto](http://bronto.github.io/pear/) PEAR channel.  You can install it by running:
+
 	sudo pear channel-discover bronto.github.io/pear
 	sudo pear install bronto/Classy
 
@@ -64,14 +65,14 @@ class SecretaryTest extends PHPUnit_Framework_TestCase {
 }
 ```
 
-## Reference ##
+## API ##
 ### Registers ###
 ```PHP 
 registerProxy($class, $proxy) 
 ```
 Registers an object to forward all instance method invocations and instance property sets for a class.  Class instantiations will no longer call the original constructor nor the original methods.  The only exception is custom __set(); the original __set will be called in addition to proxying the property set.  This is because calling code may rely on whatever the original __set was supposed to do.
 
-Note that multiple instantiations of the class will result in multiple instances being created although all calls/properties are being forwarded to only 1 proxy.
+Note that multiple instantiations of the class will still result in multiple instances being created although all calls/properties will be forwarded to only 1 proxy.
 
 ```PHP 
 registerStaticProxy($class, $proxy) 
@@ -82,7 +83,7 @@ Registers an object to forward all static method calls for a class.
 ```PHP 
 setCacheDir($dir) 
 ````
-Sets the path to use for all caching.  For performance reasons, Classy has to cache it's custom versions of your real classes.  Unless overridden with this function, Classy use the default: /tmp/classy
+Sets the path to use for all caching.  For performance reasons, Classy has to cache it's custom versions of your real classes.  Unless overridden with this function, Classy will use the default: /tmp/classy
 
 ```PHP 
 setClassFilter(function($class){
@@ -108,16 +109,15 @@ Call this to signal configuration is complete and that Classy should initiate it
 
 ## Known issues ##
 * Direct file includes/requires
-Many older projects directly include source files.  Classy is only able to intercept classes loaded via the autoloader.  Ideally, you should never perform direct includes but rather rely on an autoloader.
-
-Classy *does* add a blank version of the original source file to the include path so any subsequent direct includes/requires will not result in duplicate class exceptions.  This feature will only work with relative file paths though.
+ * Many older projects directly include source files.  Classy is only able to intercept classes loaded via the autoloader.  Ideally, you should never perform direct includes but rather rely on an autoloader.
+ * Classy *does* add a blank version of the original source file to the include path so any subsequent direct includes/requires will not result in duplicate class exceptions.  This feature will only work with relative file paths though.
 * __autoload
-Classy relies on the spl_autoload_register stack for interception.  Since direct __autoload() invocations always call your original implementation, Classy will not be able to intercept these classes.  Please always use spl_autoload() or rely on automatic loading.
+ * Classy relies on the spl_autoload_register stack for interception.  Since direct __autoload() invocations always call your original implementation, Classy will not be able to intercept these classes.  Please always use spl_autoload() or rely on automatic loading.
 * Target Classes
-PHP allows instance methods to be called statically as long as the method does not reference $this.  However, doing so may still result in an instance call (ie $this exists) even though the code explicitly called it statically (ie with ::).  This can lead to confusing proxy behavior since Classy may incorrectly route your call to an instance proxy when you thought it would be a static proxy.  The solution is to follow best practices and formally declare statically called methods as static.
+ * PHP allows instance methods to be called statically as long as the method does not reference $this.  However, doing so may still result in an instance call (ie $this exists) even though the code explicitly called it statically (ie with ::).  This can lead to confusing proxy behavior since Classy may incorrectly route your call to an instance proxy when you thought it would be a static proxy.  The solution is to follow best practices and formally declare statically called methods as static.
 * PHPUnit
-By default PHPUnit mock objects stub ALL methods of the real class. Since Classy adds its own __set() for proxying public properties, this means that PHPUnit overrides Classy's __set(), causing public properties not to work.  Currently there are the following workarounds:
+ * By default PHPUnit mock objects stub ALL methods of the real class. Since Classy adds its own __set() for proxying public properties, this means that PHPUnit overrides Classy's __set(), causing public properties not to work.  Currently there are the following workarounds:
 	1.  Use a different mock framework, such as Mockery, that ignores magic methods
 	2.  Tell PHPUnit not to stub __set()
-		`$mock = $this->getMock('Foo', null);`
-		`$mock = $this->getMock('Foo', array('methodThatIsNot__set'))`
+		* `$mock = $this->getMock('Foo', null);`
+		* `$mock = $this->getMock('Foo', array('methodThatIsNot__set'))`
