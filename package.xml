@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<package packagerversion="1.9.4" version="2.0" xmlns="http://pear.php.net/dtd/package-2.0" xmlns:tasks="http://pear.php.net/dtd/tasks-1.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://pear.php.net/dtd/tasks-1.0     http://pear.php.net/dtd/tasks-1.0.xsd     http://pear.php.net/dtd/package-2.0     http://pear.php.net/dtd/package-2.0.xsd">
+ <name>Classy</name>
+ <channel>bronto.github.com/pear</channel>
+ <summary>Class Interceptor</summary>
+ <description>bronto/Classy enables unit tests to intercept any class's method calls so expectations may be enforced</description>
+ <lead>
+  <name>Ed Dawley</name>
+  <user>eddawley</user>
+  <email>ed@eddawley.com</email>
+  <active>yes</active>
+ </lead>
+ <date>2013-12-09</date>
+ <time>02:24:33</time>
+ <version>
+  <release>1.0.0</release>
+  <api>1.0.0</api>
+ </version>
+ <stability>
+  <release>stable</release>
+  <api>stable</api>
+ </stability>
+ <license uri="http://www.opensource.org/licenses/mit-license.html">MIT License</license>
+ <notes>
+Initial release
+ </notes>
+ <contents>
+  <dir baseinstalldir="/" name="/">
+   <dir name="library">
+    <file name="Classy.php" role="php" />
+    <file name="bootstrap.php" role="php" />
+    <dir name="Classy">
+     <file name="Autoloader.php" role="php" />
+     <file name="Cache.php" role="php" />
+     <file name="Interceptor.php" role="php" />
+     <file name="Parser.php" role="php" />
+     <file name="SourceFile.php" role="php" />
+     <dir name="NodeVisitor">
+      <file name="Classifizer.php" role="php" />
+     </dir>
+    </dir>
+   </dir>
+  </dir>
+ </contents>
+ <dependencies>
+  <required>
+   <php>
+    <min>5.3.0</min>
+   </php>
+   <pearinstaller>
+    <min>1.9.4</min>
+   </pearinstaller>
+   <package>
+    <name>PHPParser</name>
+    <channel>nikic.github.com/pear</channel>
+   </package>
+  </required>
+ </dependencies>
+ <phprelease>
+  <filelist>
+   <install name="library/bootstrap.php" as="Classy/bootstrap.php"/>
+   <install name="library/Classy.php" as="Classy.php"/>
+   <install name="library/Classy/Autoloader.php" as="Classy/Autoloader.php"/>
+   <install name="library/Classy/Cache.php" as="Classy/Cache.php"/>
+   <install name="library/Classy/Interceptor.php" as="Classy/Interceptor.php"/>
+   <install name="library/Classy/NodeVisitor/Classifizer.php" as="Classy/NodeVisitor/Classifizer.php"/>
+   <install name="library/Classy/Parser.php" as="Classy/Parser.php"/>
+   <install name="library/Classy/SourceFile.php" as="Classy/SourceFile.php"/>
+  </filelist>
+ </phprelease>
+</package>
