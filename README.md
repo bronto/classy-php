@@ -14,9 +14,7 @@ Classy can be installed via the following methods:
 Classy is hosted on the [bronto](http://bronto.github.io/pear/) PEAR channel.  You can install it by running:
 
 	sudo pear channel-discover bronto.github.io/pear
-	sudo pear install bronto/Classy
-	# if pear complains about PHPParser not being stable then:
-	sudo pear install channel://nikic.github.com/pear/PHPParser-0.9.4
+	sudo pear install bronto.github.io/pear/Classy-beta
 
 ## Note on Perfomance ##
 Classy attempts to override every method of every non-PHP internal class, including 3rd party libraries.  Parsing all this source code and adding in substitutions is very costly.  As such, Classy writes the Classifized versions to disk and keeps track of when that version was created.  On subsequent unit test runs, Classy will only reparse a class if the source file has been modified since the last Classifized version was made.  This means that initial unit test runs may be very slow (our large code base takes ~30s) but subsequent runs more closely match native behavior.  There is still some overhead with having to check for proxies on every method call/property set, but this tends to be much more acceptable.
