@@ -115,7 +115,14 @@ class Classy {
 			throw new Exception("Cache directory is not writable: " . self::$cacheDir);
 		}
 
-		self::$interceptor = new \Classy\Interceptor(self::$cacheDir, self::$classLocator);
+		$cache = new \Classy\Cache(self::$cacheDir);
+		$cache->import();
+		$cache->enablePersistance();
+
+		$parserFactory = new \Classy\ParserFactory($cache);
+		$sourceFileFactory = new \Classy\SourceFileFactory(self::$cacheDir);
+		$iniHelper = new \Classy\IniHelper;
+		self::$interceptor = new \Classy\Interceptor(self::$classLocator, $parserFactory, $sourceFileFactory, $iniHelper);
 
 		if (self::$classFilter) {
 			self::$interceptor->setClassFilter(self::$classFilter);

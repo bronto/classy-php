@@ -111,6 +111,21 @@ Call this to signal configuration is complete and that Classy should initiate it
 * Direct file includes/requires
  * Many older projects directly include source files.  Classy is only able to intercept classes loaded via the autoloader.  Ideally, you should never perform direct includes but rather rely on an autoloader.
  * Classy *does* add a blank version of the original source file to the include path so any subsequent direct includes/requires will not result in duplicate class exceptions.  This feature will only work with relative file paths though.
+* include_path
+ * Classy adds its own cache directories to the include_path at autoload time.  This is to support the above mentioned include/require feature.  The current implementation will support callers modifying the include_path anywhere EXCEPT: within the classLocator, within an autoloader, or non-class statements within an autoloaded file.  For example, the following will break:
+```PHP
+ini_set('include_path', '/foo/bar');
+class Baz {
+}
+```
+ while the following will work:
+```PHP
+class Baz {
+	public function setIncludePath() {
+		ini_set('include_path', '/foo/bar');
+	}
+}
+```
 * __autoload
  * Classy relies on the spl_autoload_register stack for interception.  Since direct __autoload() invocations always call your original implementation, Classy will not be able to intercept these classes.  Please always use spl_autoload() or rely on automatic loading.
 * Target Classes

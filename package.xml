@@ -13,8 +13,8 @@
  <date>2013-12-09</date>
  <time>02:24:33</time>
  <version>
-  <release>0.1.0</release>
-  <api>0.1.0</api>
+  <release>0.2.0</release>
+  <api>0.2.0</api>
  </version>
  <stability>
   <release>beta</release>
@@ -32,9 +32,12 @@ Initial release
     <dir name="Classy">
      <file name="Autoloader.php" role="php" />
      <file name="Cache.php" role="php" />
+     <file name="IniHelper.php" role="php" />
      <file name="Interceptor.php" role="php" />
      <file name="Parser.php" role="php" />
+     <file name="ParserFactory.php" role="php" />
      <file name="SourceFile.php" role="php" />
+     <file name="SourceFileFactory.php" role="php" />
      <dir name="NodeVisitor">
       <file name="Classifizer.php" role="php" />
      </dir>
@@ -63,10 +66,13 @@ Initial release
    <install name="library/Classy.php" as="Classy.php"/>
    <install name="library/Classy/Autoloader.php" as="Classy/Autoloader.php"/>
    <install name="library/Classy/Cache.php" as="Classy/Cache.php"/>
+   <install name="library/Classy/IniHelper.php" as="Classy/IniHelper.php"/>
    <install name="library/Classy/Interceptor.php" as="Classy/Interceptor.php"/>
    <install name="library/Classy/NodeVisitor/Classifizer.php" as="Classy/NodeVisitor/Classifizer.php"/>
    <install name="library/Classy/Parser.php" as="Classy/Parser.php"/>
+   <install name="library/Classy/ParserFactory.php" as="Classy/ParserFactory.php"/>
    <install name="library/Classy/SourceFile.php" as="Classy/SourceFile.php"/>
+   <install name="library/Classy/SourceFileFactory.php" as="Classy/SourceFileFactory.php"/>
   </filelist>
  </phprelease>
 </package>

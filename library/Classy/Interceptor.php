@@ -37,28 +37,31 @@ namespace Classy;
  * prepending its own autoloader to the spl stack as well as overriding the include_path in favor of classifized
  * versions of the client class.  The intercepting autoloader runs the client class through our own classifizer
  * and then performs a require_once on the resulting class file.
- * 
- * This class is also responsible for the life cycle of the cache.
  */
 class Interceptor {
 	private $classFilter;
 	private $classLocator;
-	private $cache;
-	private $cacheDir;
 	private $classyIncludePath;
+	private $iniHelper;
 	private $originalIncludePath;
+	private $parserFactory;
+	private $sourceFileFactory;
 
 	/**
 	 * Constructor
 	 * 
-	 * @param string $cacheDir - directory to use for all caching and classifized files
 	 * @param \Closure $classLocator - function to use to map class name to file location
+	 * @param \Classy\ParserFactory $parserFactory - factory object for creating parsers
+	 * @param \Classy\SourceFileFactory $sourceFileFactory - factory object for creating sourceFiles
+	 * @param \Classy\IniHelper $iniHelper - helper object for interacting with the ini settings
 	 * @access public
 	 * @return void
 	 */
-	public function __construct($cacheDir, \Closure $classLocator) {
-		$this->cacheDir = $cacheDir;
+	public function __construct(\Closure $classLocator, \Classy\ParserFactory $parserFactory, \Classy\SourceFileFactory $sourceFileFactory, \Classy\IniHelper $iniHelper) {
 		$this->classLocator = $classLocator;
+		$this->iniHelper = $iniHelper;
+		$this->parserFactory = $parserFactory;
+		$this->sourceFileFactory = $sourceFileFactory;
 	}
 
 	/**
@@ -71,7 +74,7 @@ class Interceptor {
 	 * Note that this function is called for *every* client class including all libraries.  This means it should be as performant
 	 * as possible in order to minimize additional overhead when running unit tests.
 	 * 
-	 * @param mixed $class 
+	 * @param string $class - name of class to load
 	 * @access private
 	 * @return void
 	 */
@@ -86,21 +89,23 @@ class Interceptor {
 			return;
 		}
 
-		if (!$this->originalIncludePath || !$this->classyIncludePath) {
-			$this->setupIncludePath();
+		$currentIncludePath = $this->iniHelper->get('include_path');
+
+		// we need to reset the classyIncludePath if it:
+		// 1.  has not been set yet
+		// 2.  the current include path is different from the one we parsed earlier.  However, autoload() will be called recursively for parent classes
+		//     so we need to make sure the "change" is not just us having used the classyIncludePath.  Outside of inheritance recursion, the current
+		//     include_path should not be classfized at this point. 
+		if (!$this->originalIncludePath || !$this->classyIncludePath || 
+			($currentIncludePath != $this->classyIncludePath && $currentIncludePath != $this->originalIncludePath)) {
+			$this->setupIncludePath($currentIncludePath);
 		}
 
-		if (!$this->cache) {
-			$this->setupCache();
-		}
-
-		// use the original include path so that we don't inadvertantly find classy versions of the file
-		ini_set('include_path', $this->originalIncludePath);
+		// ensure we use the original include path so that we don't inadvertantly find classy versions of the file.  The include_path will be
+		// classifized right now only if we have been called via inheritance recursion.
+		$this->iniHelper->set('include_path', $this->originalIncludePath);
 
 		$file = $this->classLocator->__invoke($class);
-
-		// revert back to the classy include path so that any code doing require/include will get our proxies
-		ini_set('include_path', $this->classyIncludePath);
 
 		if (!$file) {
 			// If we can't find the file, let the autoload continue through the stack.  Some people even have unit tests that check for a specific exception
@@ -108,12 +113,19 @@ class Interceptor {
 			return false;
 		}
 
-		$sourceFile = new \Classy\SourceFile($file, $this->cacheDir);
-		$proxy = new \Classy\Parser($sourceFile, $this->cache);
+		$sourceFile = $this->sourceFileFactory->create($file);
+		$parser = $this->parserFactory->create($sourceFile);
 
 		try {
-			$proxy->parse();
+			// revert back to the classy include path so that any code doing require/include will get our proxies
+			$this->iniHelper->set('include_path', $this->classyIncludePath);
+
+			$parser->parse();
+
+			// return to the original include path in case the caller modifies it
+			$this->iniHelper->set('include_path', $this->originalIncludePath);
 		} catch(\Exception $e) {
+			$this->iniHelper->set('include_path', $this->originalIncludePath);
 			throw new \Exception("Unable to generate proxy for $class", null, $e);
 		}
 	}
@@ -140,27 +152,16 @@ class Interceptor {
 	}
 
 	/**
-	 * Helper function to create the cache
-	 * 
-	 * @access private
-	 * @return void
-	 */
-	private function setupCache() {
-		$this->cache = new \Classy\Cache($this->cacheDir);
-		$this->cache->import();
-		$this->cache->enablePersistance();
-	}
-
-	/**
 	 * Prepends classy locations to the include_path so our versions of classes take preference for direct includes.  Note, 
 	 * this function does not actually call ini_set() but rather stores the new include_path to an instance member for use later.
 	 * 
 	 * @access private
+	 * @param string $includePath - current include_path
 	 * @return void
 	 */
-	private function setupIncludePath() {
+	private function setupIncludePath($includePath) {
 		// prepend the cache dir to the include path so that any direct requires will hit our proxies instead of the real files
-		$this->originalIncludePath = ini_get('include_path');
+		$this->originalIncludePath = $includePath;
 		$originalIncludePathParts = explode(':', $this->originalIncludePath);
 		$classyIncludePath = array();
 		foreach ($originalIncludePathParts as $path) {
@@ -168,7 +169,7 @@ class Interceptor {
 				$path = "";
 			}
 
-			$classyIncludePath[] = $this->cacheDir . "{$path}";
+			$classyIncludePath[] = $this->sourceFileFactory->proxyDir . "{$path}";
 		}
 
 		$classyIncludePath = array_merge($classyIncludePath, $originalIncludePathParts);
