@@ -107,7 +107,7 @@ class Classy {
 			self::$classLocator = self::getDefaultClassLocator();
 		}
 
-		if (!is_dir(self::$cacheDir)) {
+		if (!is_dir(self::$cacheDir) && !mkdir(self::$cacheDir)) {
 			throw new Exception("Cache directory does not exist: " . self::$cacheDir);
 		}
 
