@@ -1,5 +1,7 @@
 # Classy #
 
+**This project is no longer maintained and should be used for historical purposes only.**
+
 Classy is a library that allows unit tests to override behavior in untestable class methods such as those that make static method invocations or those that perform direct class instantiations (ie new Foo).  It is not intended to be a substitute for Dependency Injection and/or the Service Locator pattern but rather an option for times when those patterns are simply unfeasible, be it due to time constraints, risk aversion, performance considerations, or even third party APIs.
 
 Classy works by intercepting the autoloading process and adding its own code to the original class.  This allows Classy to dynamically forward method calls and property sets on your classes to whatever object you have indicated.  Proxy behavior can be reset between unit tests even though the class definition will only be loaded once per process.  
